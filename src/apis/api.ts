@@ -51,6 +51,9 @@ export type FetchCallbacks<RawDataType> = (
   onError: (errorMsg: string) => void
 ) => () => void;
 
+interface ConnectorWithNameSpace extends Connector {
+  namespace_id: string;
+}
 export const startConnector = ({
   accessToken,
   connectorsApiBasePath,
@@ -341,6 +344,7 @@ export const fetchConnectorTypes = ({
       basePath: connectorsApiBasePath,
     })
   );
+
   return (request, onSuccess, onError) => {
     const CancelToken = axios.CancelToken;
     const source = CancelToken.source();
@@ -519,6 +523,19 @@ export const saveConnector = ({
       basePath: kafkaManagementApiBasePath,
     })
   );
+  // temp function to test cluster namespaces
+  const getClusterNameSpace = () => {
+    return axios
+      .create({
+        baseURL: `http://localhost:8000/api/connector_mgmt/v1/`,
+        timeout: 1000,
+        headers: {
+          Authorization:
+            'Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICItNGVsY19WZE5fV3NPVVlmMkc0UXhyOEdjd0l4X0t0WFVDaXRhdExLbEx3In0.eyJleHAiOjE2NDY5MDEzNjQsImlhdCI6MTY0NjkwMDQ2NCwiYXV0aF90aW1lIjoxNjQ2NzI4MTg5LCJqdGkiOiJmMDg5MWVhMS1jMDg5LTRlN2MtOGNlZi1mZGNlYzIzZWRhMjgiLCJpc3MiOiJodHRwczovL3Nzby5yZWRoYXQuY29tL2F1dGgvcmVhbG1zL3JlZGhhdC1leHRlcm5hbCIsImF1ZCI6ImNsb3VkLXNlcnZpY2VzIiwic3ViIjoiZjo1MjhkNzZmZi1mNzA4LTQzZWQtOGNkNS1mZTE2ZjRmZTBjZTY6YXNhbnNhcmlfa2Fma2Ffc3VwcG9ydGluZyIsInR5cCI6IkJlYXJlciIsImF6cCI6ImNsb3VkLXNlcnZpY2VzIiwibm9uY2UiOiIyOTU2NGM2OS04MzdkLTRhMDktODkxMy03ZmJhY2NjMDVlMjAiLCJzZXNzaW9uX3N0YXRlIjoiYmYxYWYzMTgtMzFmMy00ZGM5LTliYTctMjJhMDkzNDA1OTgzIiwiYWNyIjoiMCIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL3Byb2QuZm9vLnJlZGhhdC5jb206MTMzNyIsImh0dHBzOi8vY29uc29sZS5kZXYucmVkaGF0LmNvbSIsImh0dHBzOi8vcWFwcm9kYXV0aC5jb25zb2xlLnJlZGhhdC5jb20iLCJodHRwczovL2dvdi5jb25zb2xlLnJlZGhhdC5jb20iLCJodHRwczovL3FhcHJvZGF1dGguZm9vLnJlZGhhdC5jb20iLCJodHRwczovL2FwaS5jbG91ZC5yZWRoYXQuY29tIiwiaHR0cHM6Ly9xYXByb2RhdXRoLmNsb3VkLnJlZGhhdC5jb20iLCJodHRwczovL2Nsb3VkLm9wZW5zaGlmdC5jb20iLCJodHRwczovL3Byb2QuZm9vLnJlZGhhdC5jb20iLCJodHRwczovL2Nsb3VkLnJlZGhhdC5jb20iLCJodHRwczovL2NvbnNvbGUucmVkaGF0LmNvbSJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiYXV0aGVudGljYXRlZCIsIm9mZmxpbmVfYWNjZXNzIl19LCJzY29wZSI6Im9wZW5pZCBvZmZsaW5lX2FjY2VzcyIsInNpZCI6ImJmMWFmMzE4LTMxZjMtNGRjOS05YmE3LTIyYTA5MzQwNTk4MyIsImFjY291bnRfbnVtYmVyIjoiNjk3ODM5MyIsImlzX2ludGVybmFsIjpmYWxzZSwiaXNfYWN0aXZlIjp0cnVlLCJsYXN0X25hbWUiOiJBbnNhcmkiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhc2Fuc2FyaV9rYWZrYV9zdXBwb3J0aW5nIiwidHlwZSI6IlVzZXIiLCJsb2NhbGUiOiJlbl9VUyIsImlzX29yZ19hZG1pbiI6ZmFsc2UsImFjY291bnRfaWQiOiI1NDQyMTIyMyIsIm9yZ19pZCI6IjEzODg4MzQ3IiwiZmlyc3RfbmFtZSI6IkFzaGlxdWUiLCJlbWFpbCI6ImFzYW5zYXJpQHJlZGhhdC5jb20iLCJ1c2VybmFtZSI6ImFzYW5zYXJpX2thZmthX3N1cHBvcnRpbmcifQ.o1fUfDBueoU2_pQGqD_mMrYkkXyYrDV2GRBwYr_FdcAPJtTUtuJGzTRJ8gCuYfjCskK6nhsw_q6XdM0PXKvhxUrG-qpC6KPqtOSr5qPqo1L55q-h6c1g3lxhHGSjhSmijgUi6YReHwvWJVw2T3YQiiGQcT6pOtg695gIR6nDXurAMy9vx8nP8IcioEMH1NH2zuPPTI88hKQ4ENvMx5KPKmOgFjnQHSpvggQ0fyqBvKogU4GdpF4j9z5yE8KEiVlGNjLqAKHS4q6doomqmHj-2qA8v5MPvvWvAv_z2FzAr3hG5pl3_1FXZXsx774LPahp4VbW0SVCjIB1-bTcg0OkOvj67wali0o6rBF3SZ-g1Y-7Ynwzv0E5HcZLklHbpoRPnRe3Cwdy8xb42rFXebTI0wcdhxNkOyMW_l0r1nBAu42KZHr35gVooV19Ycrn-GbaGbARRSwfaAH6emcgE_Mwdx5255KLnC9a8gzM6eYBAatSBwj8ImJbwKSMQA3Gq-MxJlqrOeALbkxeuNlalOgfYNtl3A7CX-v-IEIfLcUMPXv0NgFqEG7iHg9OEguhUf0kaGdTkWDttMJnBh1PrEYtwY6zIzCxv2pjj916DhofI60eYtpbzL51hzI_X_54ECvMTMeHyAmZawJnu718dD8TMsfYubVr8I50R3rR_oB-8k4',
+        },
+      })
+      .get(`kafka_connector_clusters/c8kc2gn91m1dvupd4i80/namespaces`);
+  };
 
   const getOrCreateServiceAccount = async (source: CancelTokenSource) => {
     if (userServiceAccount) return Promise.resolve(userServiceAccount);
@@ -546,47 +563,61 @@ export const saveConnector = ({
     const CancelToken = axios.CancelToken;
     const source = CancelToken.source();
     const async = true;
-    getOrCreateServiceAccount(source)
-      .then(({ clientId, clientSecret }) => {
-        let connectorConfiguration = {};
-        if (userErrorHandler) {
-          connectorConfiguration = {
-            ...configuration,
-            ...{
-              error_handler: {
-                [userErrorHandler]: topic ? { topic: topic } : {},
+    getClusterNameSpace()
+      .then((response) => {
+        console.log(response.data?.items[0]);
+
+        getOrCreateServiceAccount(source)
+          .then(({ clientId, clientSecret }) => {
+            let connectorConfiguration = {};
+            if (userErrorHandler) {
+              connectorConfiguration = {
+                ...configuration,
+                ...{
+                  error_handler: {
+                    [userErrorHandler]: topic ? { topic: topic } : {},
+                  },
+                },
+              };
+            } else {
+              connectorConfiguration = configuration;
+            }
+            const connector: ConnectorWithNameSpace = {
+              kind: 'Connector',
+              name: name,
+              namespace_id: response.data?.items[0].id,
+              channel: Channel.Stable,
+              deployment_location: {
+                kind: 'addon',
+                cluster_id: cluster.id,
               },
-            },
-          };
-        } else {
-          connectorConfiguration = configuration;
-        }
-        const connector: Connector = {
-          kind: 'Connector',
-          name: name,
-          channel: Channel.Stable,
-          deployment_location: {
-            kind: 'addon',
-            cluster_id: cluster.id,
-          },
-          desired_state: ConnectorDesiredState.Ready,
-          connector_type_id: (connectorType as ObjectReference).id!,
-          kafka: {
-            id: kafka.id!,
-            url: kafka.bootstrap_server_host || 'demo',
-          },
-          service_account: {
-            client_id: clientId,
-            client_secret: clientSecret,
-          },
-          connector: connectorConfiguration,
-        };
-        connectorsAPI
-          .createConnector(async, connector, {
-            cancelToken: source.token,
-          })
-          .then(() => {
-            callback({ type: 'success' });
+              desired_state: ConnectorDesiredState.Ready,
+              connector_type_id: (connectorType as ObjectReference).id!,
+              kafka: {
+                id: kafka.id!,
+                url: kafka.bootstrap_server_host || 'demo',
+              },
+              service_account: {
+                client_id: clientId,
+                client_secret: clientSecret,
+              },
+              connector: connectorConfiguration,
+            };
+            connectorsAPI
+              .createConnector(async, connector, {
+                cancelToken: source.token,
+              })
+              .then(() => {
+                callback({ type: 'success' });
+              })
+              .catch((error) => {
+                if (!axios.isCancel(error)) {
+                  callback({
+                    type: 'failure',
+                    message: error.response.data.reason,
+                  });
+                }
+              });
           })
           .catch((error) => {
             if (!axios.isCancel(error)) {
@@ -599,9 +630,13 @@ export const saveConnector = ({
       })
       .catch((error) => {
         if (!axios.isCancel(error)) {
-          callback({ type: 'failure', message: error.response.data.reason });
+          callback({
+            type: 'failure',
+            message: error.response.data.reason,
+          });
         }
       });
+
     return () => {
       source.cancel('Operation canceled by the user.');
     };
