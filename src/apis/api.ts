@@ -358,9 +358,6 @@ export const fetchConnectorNamespaces = ({
     namespacesAPI
       .listConnectorNamespaces(`${page}`, `${size}`)
       .then((response) => {
-        console.log(response);
-        console.log(onSuccess);
-
         onSuccess({
           items: response.data.items || [],
           total: response.data.total,
@@ -398,6 +395,9 @@ export const fetchClusters = ({
         cancelToken: source.token,
       })
       .then((response) => {
+        console.log(response);
+        console.log(onSuccess);
+
         onSuccess({
           items: response.data.items || [],
           total: response.data.total,

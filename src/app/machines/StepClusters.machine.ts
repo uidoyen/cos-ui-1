@@ -1,10 +1,11 @@
-import { fetchConnectorNamespaces } from '@apis/api';
+import { fetchClusters } from '@apis/api';
 import { PAGINATED_MACHINE_ID } from '@constants/constants';
 
 import { ActorRefFrom, send, sendParent } from 'xstate';
 import { createModel } from 'xstate/lib/model';
 
-import { ConnectorNamespace } from '../../../../../rh-dev/app-services-sdk-js/packages/connector-management-sdk/dist/generated/model/connector-namespace';
+import { ConnectorCluster } from '@rhoas/connector-management-sdk';
+
 import {
   ApiSuccessResponse,
   getPaginatedApiMachineEvents,
@@ -14,8 +15,8 @@ import {
 type Context = {
   accessToken: () => Promise<string>;
   connectorsApiBasePath: string;
-  response?: ApiSuccessResponse<ConnectorNamespace>;
-  selectedCluster?: ConnectorNamespace;
+  response?: ApiSuccessResponse<ConnectorCluster>;
+  selectedCluster?: ConnectorCluster;
   error?: Object;
 };
 
@@ -34,11 +35,7 @@ const model = createModel(
       }),
       deselectCluster: () => ({}),
       confirm: () => ({}),
-      ...getPaginatedApiMachineEvents<
-        ConnectorNamespace,
-        {},
-        ConnectorNamespace
-      >(),
+      ...getPaginatedApiMachineEvents<ConnectorCluster, {}, ConnectorCluster>(),
     },
   }
 );
@@ -73,18 +70,19 @@ export const clustersMachine = model.createMachine(
     context: model.initialContext,
     states: {
       root: {
+        // Parallel states
         type: 'parallel',
         states: {
+          // regions
           api: {
             initial: 'idle',
             invoke: {
               id: PAGINATED_MACHINE_ID,
               src: (context) =>
-                makePaginatedApiMachine<
-                  ConnectorNamespace,
-                  {},
-                  ConnectorNamespace
-                >(fetchConnectorNamespaces(context), (i) => i),
+                makePaginatedApiMachine<ConnectorCluster, {}, ConnectorCluster>(
+                  fetchClusters(context),
+                  (i) => i
+                ),
             },
             states: {
               idle: {
@@ -111,6 +109,7 @@ export const clustersMachine = model.createMachine(
               'api.success': { actions: success },
             },
           },
+          // regions
           selection: {
             id: 'selection',
             initial: 'verify',

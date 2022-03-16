@@ -13,6 +13,7 @@ import {
   PaginatedApiRequest,
 } from '@app/machines/PaginatedResponse.machine';
 import { BasicMachineActorRef } from '@app/machines/StepBasic.machine';
+import { ClustersMachineActorRef } from '@app/machines/StepClusters.machine';
 import {
   ConnectorConfiguratorResponse,
   configuratorLoaderMachine,
@@ -106,6 +107,7 @@ export const useCreateConnectorWizard = (): {
   connectorTypeRef: ConnectorTypesMachineActorRef;
   kafkaRef: KafkaMachineActorRef;
   namespaceRef: NamespaceMachineActorRef;
+  clusterRef: ClustersMachineActorRef;
   basicRef: BasicMachineActorRef;
   errorRef: ErrorHandlingMachineActorRef;
   reviewRef: ReviewMachineActorRef;
@@ -120,6 +122,7 @@ export const useCreateConnectorWizard = (): {
         kafkaRef: state.children.selectKafkaInstanceRef as KafkaMachineActorRef,
         namespaceRef: state.children
           .selectNamespaceRef as NamespaceMachineActorRef,
+        clusterRef: state.children.selectClusterRef as ClustersMachineActorRef,
         basicRef: state.children.basicRef as BasicMachineActorRef,
         errorRef: state.children.errorRef as ErrorHandlingMachineActorRef,
         reviewRef: state.children.reviewRef as ReviewMachineActorRef,
@@ -179,46 +182,46 @@ export const useNamespaceMachine = () => {
   };
 };
 export const useClustersMachineIsReady = () => {
-  const { namespaceRef } = useCreateConnectorWizard();
+  const { clusterRef } = useCreateConnectorWizard();
   return useSelector(
-    namespaceRef,
+    clusterRef,
     useCallback(
-      (state: EmittedFrom<typeof namespaceRef>) => {
+      (state: EmittedFrom<typeof clusterRef>) => {
         return state.matches({ root: { api: 'ready' } });
         // eslint-disable-next-line react-hooks/exhaustive-deps
       },
-      [namespaceRef]
+      [clusterRef]
     )
   );
 };
 
 export const useClustersMachine = () => {
-  const { namespaceRef } = useCreateConnectorWizard();
+  const { clusterRef } = useCreateConnectorWizard();
   const api = usePagination<ConnectorCluster, {}, ConnectorCluster>(
-    namespaceRef.getSnapshot()?.children[
+    clusterRef.getSnapshot()?.children[
       PAGINATED_MACHINE_ID
     ] as PaginatedApiActorType<ConnectorCluster, {}, ConnectorCluster>
   );
   const { selectedId } = useSelector(
-    namespaceRef,
+    clusterRef,
     useCallback(
-      (state: EmittedFrom<typeof namespaceRef>) => ({
-        selectedId: state.context.selectedNamespace?.id,
+      (state: EmittedFrom<typeof clusterRef>) => ({
+        selectedId: state.context.selectedCluster?.id,
       }),
       []
     )
   );
   const onSelect = useCallback(
-    (selectedNamespace: string) => {
-      namespaceRef.send({ type: 'selectNamespace', selectedNamespace });
+    (selectedCluster: string) => {
+      clusterRef.send({ type: 'selectCluster', selectedCluster });
     },
-    [namespaceRef]
+    [clusterRef]
   );
   const onQuery = useCallback(
     (request: PaginatedApiRequest<{}>) => {
-      namespaceRef.send({ type: 'api.query', ...request });
+      clusterRef.send({ type: 'api.query', ...request });
     },
-    [namespaceRef]
+    [clusterRef]
   );
   return {
     ...api,

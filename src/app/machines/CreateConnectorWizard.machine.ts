@@ -1,5 +1,6 @@
 import { UserProvidedServiceAccount } from '@apis/api';
 import { basicMachine } from '@app/machines/StepBasic.machine';
+import { clustersMachine } from '@app/machines/StepClusters.machine';
 import { configuratorMachine } from '@app/machines/StepConfigurator.machine';
 import {
   configuratorLoaderMachine,
@@ -428,11 +429,11 @@ export const creationWizardMachine = model.createMachine(
         initial: 'selecting',
         invoke: {
           id: 'selectClusterRef',
-          src: namespacesMachine,
+          src: clustersMachine,
           data: (context) => ({
             accessToken: context.accessToken,
             connectorsApiBasePath: context.connectorsApiBasePath,
-            selectedCluster: defaultNameSpace,
+            selectedCluster: context.selectedCluster,
           }),
           onDone: {
             target: 'basicConfiguration',
@@ -743,7 +744,7 @@ export const creationWizardMachine = model.createMachine(
       },
       jumpToBasicConfiguration: {
         target: 'basicConfiguration',
-        cond: 'isClusterSelected',
+        cond: 'isNamespaceSelected',
       },
       jumpToConfigureConnector: {
         target: 'configureConnector',
@@ -766,17 +767,17 @@ export const creationWizardMachine = model.createMachine(
     guards: {
       isKafkaInstanceSelected: (context) =>
         context.selectedKafkaInstance !== undefined,
-      isClusterSelected: (context) => context.selectedCluster !== undefined,
+      isNamespaceSelected: (context) => context.selectedNamespace !== undefined,
       isConnectorSelected: (context, event) => {
         const subStep = (event as { subStep?: number }).subStep;
         if (subStep) {
           return (
-            context.selectedConnector !== undefined &&
+            context.selectedNamespace !== undefined &&
             (context.connectorConfiguration !== undefined ||
               subStep <= context.activeConfigurationStep!)
           );
         }
-        return context.selectedConnector !== undefined;
+        return context.selectedNamespace !== undefined;
       },
       isConnectorConfigured: (context) => {
         if (!context.configurationSteps) {
