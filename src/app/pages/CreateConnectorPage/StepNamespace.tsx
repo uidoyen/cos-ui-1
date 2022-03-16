@@ -1,6 +1,6 @@
 import {
-  useClustersMachineIsReady,
-  useClustersMachine,
+  useNamespaceMachineIsReady,
+  useNamespaceMachine,
 } from '@app/components/CreateConnectorWizard/CreateConnectorWizardContext';
 import { CreateDeploymentNamespace } from '@app/components/CreateDeploymentNamespace/CreateDeploymentNamespace';
 import { EmptyStateNoMatchesFound } from '@app/components/EmptyStateNoMatchesFound/EmptyStateNoMatchesFound';
@@ -32,8 +32,8 @@ import {
 } from '@patternfly/react-core';
 import { FilterIcon, SearchIcon } from '@patternfly/react-icons';
 
-export function SelectCluster() {
-  const isReady = useClustersMachineIsReady();
+export function SelectNamespace() {
+  const isReady = useNamespaceMachineIsReady();
 
   return isReady ? <ClustersGallery /> : null;
 }
@@ -54,7 +54,7 @@ const ClustersGallery: FunctionComponent = () => {
     firstRequest,
     onSelect,
     onQuery,
-  } = useClustersMachine();
+  } = useNamespaceMachine();
   const onModalToggle = useCallback(() => {
     setIsModalOpen((prev) => !prev);
   }, []);
@@ -152,7 +152,7 @@ const ClustersGallery: FunctionComponent = () => {
 
 const ClustersToolbar: FunctionComponent = () => {
   // const { t } = useTranslation();
-  const { request, onQuery } = useClustersMachine();
+  const { request, onQuery } = useNamespaceMachine();
 
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const debouncedOnQuery = useDebounce(onQuery, 1000);
@@ -275,7 +275,7 @@ type ClustersPaginationProps = {
 const ClustersPagination: FunctionComponent<ClustersPaginationProps> = ({
   isCompact = false,
 }) => {
-  const { request, response, onQuery } = useClustersMachine();
+  const { request, response, onQuery } = useNamespaceMachine();
   return (
     <Pagination
       itemCount={response?.total || 0}

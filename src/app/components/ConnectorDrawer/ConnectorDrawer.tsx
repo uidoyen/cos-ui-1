@@ -46,6 +46,8 @@ export const ConnectorDrawer: FunctionComponent<ConnectorDrawerProps> = ({
   connector,
   onClose,
 }) => {
+  console.log('connector.....', connector);
+
   return (
     <Drawer isExpanded={connector !== undefined}>
       <DrawerContent
@@ -56,8 +58,13 @@ export const ConnectorDrawer: FunctionComponent<ConnectorDrawerProps> = ({
               bootstrapServer={connector.kafka!.url!}
               kafkaId={connector.kafka.id}
               owner={connector.owner!}
-              //@ts-expect-error
-              cluster={connector.namespace_id!}
+              // cluster={
+              //   connector.cluster_id!
+              // }
+              namespaceId={
+                //@ts-expect-error
+                connector.namespace_id
+              }
               createdAt={new Date(connector.created_at!)}
               modifiedAt={new Date(connector.modified_at!)}
               status={connector.status?.state!}
@@ -77,7 +84,8 @@ export type ConnectorDrawerPanelContentProps = {
   bootstrapServer: string;
   kafkaId: string;
   owner: string;
-  cluster: string;
+  // cluster: string;
+  namespaceId: string;
   createdAt: Date;
   modifiedAt: Date;
   status: string;
@@ -90,7 +98,8 @@ export const ConnectorDrawerPanelContent: FunctionComponent<ConnectorDrawerPanel
     bootstrapServer,
     kafkaId,
     owner,
-    cluster,
+    // cluster,
+    namespaceId,
     createdAt,
     modifiedAt,
     status,
@@ -160,7 +169,8 @@ export const ConnectorDrawerPanelContent: FunctionComponent<ConnectorDrawerPanel
                     {textListItem('Bootstrap server', bootstrapServer)}
                     {textListItem('Connector', name)}
                     {textListItem('Kafka_instance', kafkaId)}
-                    {textListItem('Targeted OSD Cluster', cluster)}
+                    {/* {textListItem('Targeted OSD Cluster', cluster)} */}
+                    {textListItem('Deployment namespace', namespaceId)}
                     {textListItem('Owner', owner)}
                     {textListItem(
                       'Time created',

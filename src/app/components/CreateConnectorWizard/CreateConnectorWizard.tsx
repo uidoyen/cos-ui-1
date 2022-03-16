@@ -7,11 +7,11 @@ import {
 import { creationWizardMachine } from '@app/machines/CreateConnectorWizard.machine';
 import { ConfiguratorActorRef } from '@app/machines/StepConfigurator.machine';
 import { Basic } from '@app/pages/CreateConnectorPage/StepBasic';
-import { SelectCluster } from '@app/pages/CreateConnectorPage/StepClusters';
 import { ConfiguratorStep } from '@app/pages/CreateConnectorPage/StepConfigurator';
 import { SelectConnectorType } from '@app/pages/CreateConnectorPage/StepConnectorTypes';
 import { StepErrorHandling } from '@app/pages/CreateConnectorPage/StepErrorHandling';
 import { SelectKafkaInstance } from '@app/pages/CreateConnectorPage/StepKafkas';
+import { SelectNamespace } from '@app/pages/CreateConnectorPage/StepNamespace';
 import { Review } from '@app/pages/CreateConnectorPage/StepReview';
 import React, { FunctionComponent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -238,15 +238,15 @@ export const CreateConnectorWizard: FunctionComponent<CreateConnectorWizardProps
       kafkaInstanceStep,
       {
         name: t('OSD cluster'),
-        isActive: state.matches('selectCluster'),
+        isActive: state.matches('selectNamespace'),
         component: (
           <StepErrorBoundary>
-            <SelectCluster />
+            <SelectNamespace />
           </StepErrorBoundary>
         ),
         canJumpTo:
-          creationWizardMachine.transition(state, 'jumpToSelectCluster')
-            .changed || state.matches('selectCluster'),
+          creationWizardMachine.transition(state, 'jumpToSelectNamespace')
+            .changed || state.matches('selectNamespace'),
         enableNext: creationWizardMachine.transition(state, 'next').changed,
       },
       {
@@ -295,7 +295,7 @@ export const CreateConnectorWizard: FunctionComponent<CreateConnectorWizardProps
           send('jumpToSelectKafka');
           break;
         case 3:
-          send('jumpToSelectCluster');
+          send('jumpToSelectNamespace');
           break;
         case 4:
           send('jumpToBasicConfiguration');

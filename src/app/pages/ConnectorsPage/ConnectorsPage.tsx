@@ -4,6 +4,7 @@ import {
   ConnectorsTableRow,
 } from '@app/components/ConnectorsTable/ConnectorsTable';
 import { ConnectorsToolbar } from '@app/components/ConnectorsToolbar/ConnectorsToolbar';
+// import { useConnectorTypesMachine } from '@app/components/CreateConnectorWizard/CreateConnectorWizardContext';
 import { DialogDeleteConnector } from '@app/components/DialogDeleteConnector/DialogDeleteConnector';
 import { EmptyStateGenericError } from '@app/components/EmptyStateGenericError/EmptyStateGenericError';
 import { EmptyStateGettingStarted } from '@app/components/EmptyStateGettingStarted/EmptyStateGettingStarted';

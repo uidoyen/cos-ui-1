@@ -36,6 +36,9 @@ const ConnectedCustomConfigurator: FunctionComponent<{
       [actor]
     )
   );
+  console.log('connector::', connector);
+  console.log('configuration::', configuration);
+  console.log('activeStep::', configuration);
 
   return (
     <Configurator

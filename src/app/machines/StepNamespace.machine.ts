@@ -15,7 +15,7 @@ type Context = {
   accessToken: () => Promise<string>;
   connectorsApiBasePath: string;
   response?: ApiSuccessResponse<ConnectorNamespace>;
-  selectedCluster?: ConnectorNamespace;
+  selectedNamespace?: ConnectorNamespace;
   error?: Object;
 };
 
@@ -24,12 +24,12 @@ const model = createModel(
     accessToken: () => Promise.resolve(''),
     connectorsApiBasePath: '',
     clusters: undefined,
-    selectedCluster: undefined,
+    selectedNamespace: undefined,
     error: undefined,
   } as Context,
   {
     events: {
-      selectCluster: (payload: { selectedCluster: string }) => ({
+      selectNamespace: (payload: { selectedNamespace: string }) => ({
         ...payload,
       }),
       deselectCluster: () => ({}),
@@ -49,24 +49,24 @@ const success = model.assign((_context, event) => {
     response,
   };
 }, 'api.success');
-const selectCluster = model.assign(
+const selectNamespace = model.assign(
   {
-    selectedCluster: (context, event) => {
+    selectedNamespace: (context, event) => {
       return context.response?.items?.find(
-        (i) => i.id === event.selectedCluster
+        (i) => i.id === event.selectedNamespace
       );
     },
   },
-  'selectCluster'
+  'selectNamespace'
 );
 const reset = model.assign(
   {
-    selectedCluster: undefined,
+    selectedNamespace: undefined,
   },
   'deselectCluster'
 );
 
-export const clustersMachine = model.createMachine(
+export const namespacesMachine = model.createMachine(
   {
     id: 'clusters',
     initial: 'root',
@@ -124,19 +124,19 @@ export const clustersMachine = model.createMachine(
               selecting: {
                 entry: sendParent('isInvalid'),
                 on: {
-                  selectCluster: {
+                  selectNamespace: {
                     target: 'valid',
-                    actions: selectCluster,
+                    actions: selectNamespace,
                   },
                 },
               },
               valid: {
                 entry: sendParent('isValid'),
                 on: {
-                  selectCluster: {
+                  selectNamespace: {
                     target: 'verify',
-                    actions: selectCluster,
-                    cond: (_, event) => event.selectedCluster !== undefined,
+                    actions: selectNamespace,
+                    cond: (_, event) => event.selectedNamespace !== undefined,
                   },
                   deselectCluster: {
                     target: 'verify',
@@ -156,17 +156,17 @@ export const clustersMachine = model.createMachine(
         id: 'done',
         type: 'final',
         data: {
-          selectedCluster: (context: Context) => context.selectedCluster,
+          selectedNamespace: (context: Context) => context.selectedNamespace,
         },
       },
     },
   },
   {
     guards: {
-      clusterSelected: (context) => context.selectedCluster !== undefined,
-      noClusterSelected: (context) => context.selectedCluster === undefined,
+      clusterSelected: (context) => context.selectedNamespace !== undefined,
+      noClusterSelected: (context) => context.selectedNamespace === undefined,
     },
   }
 );
 
-export type ClustersMachineActorRef = ActorRefFrom<typeof clustersMachine>;
+export type NamespaceMachineActorRef = ActorRefFrom<typeof namespacesMachine>;
